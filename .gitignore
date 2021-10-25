@@ -203,6 +203,9 @@ Temporary Items
 
 # Translations
 
+#Sqlite stuff:
+*.sqlite
+
 # Django stuff:
 
 # Flask stuff:
