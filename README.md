@@ -7,6 +7,9 @@
 
 ---
 ```
+# Navigate to flask-server
+$ cd flask-server
+
 # Create Virtual Environment
 $ python -m venv venv
 
@@ -18,12 +21,12 @@ $ pip install -r requirements.txt
 
 # Create DB
 $ python
->> from server import db
+>> from models import db
 >> db.create_all()
 >> exit()
 
 # Run Server (http://127.0.0.1:5000)
-python server.py
+python app.py
 ```
 
 ## Endpoints
