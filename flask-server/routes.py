@@ -1,11 +1,13 @@
 import glob
+import uuid
 
-from flask import jsonify, request
+from flask import jsonify, request, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import basedir, os
 from models import *
 
+from midi2audio import FluidSynth
 
 # Register User
 @app.route('/register', methods=['GET', 'POST'])
@@ -33,13 +35,16 @@ def sign_in():
     return jsonify({'signed_in': True})
   return jsonify({'signed_in': False})
 
+# Play a Song
+@app.route('/play/<id>', methods=['GET'])
+def play_Song(id):
+  song = Song.query.get(id)
+  return send_file(song.path, mimetype="audio/wav")
+
 # Create a Song
 @app.route('/song', methods=['POST'])
 def add_Song():
   steps = request.json['steps']
-  '''
-  This feature is temporarily disabled to escape dependency hell 
-
   os.system("melody_rnn_generate \
     --config=basic_rnn \
     --bundle_file="+basedir+"/magenta/basic_rnn.mag \
@@ -47,14 +52,21 @@ def add_Song():
     --num_outputs=1 \
     --num_steps="+str(steps)+" \
     --primer_melody=[60]")
+ 
   folder_path = basedir+"/library"
   file_type = '/*mid'
   files = glob.glob(folder_path + file_type)
   max_file = max(files, key=os.path.getctime)
   path = max_file
-  '''
-  path = ' '
-  new_Song = Song(path, steps)
+
+  new_path = basedir+'/library/'+uuid.uuid4().hex+'.wav'  
+
+  fs = FluidSynth()
+  fs.midi_to_audio(path, new_path)
+
+  os.remove(path)
+
+  new_Song = Song(new_path, steps)
   db.session.add(new_Song)
   db.session.commit()
   return Song_schema.jsonify(new_Song)
