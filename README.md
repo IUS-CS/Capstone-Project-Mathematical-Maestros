@@ -27,6 +27,12 @@ $ python
 
 # Run Server (http://127.0.0.1:5000)
 python app.py
+
+# Navigate to react-front-end
+$ cd ../react-front-end/
+
+# Run Frontend (http://127.0.0.1:3000)
+$ npm start
 ```
 
 ## Endpoints
