@@ -44,7 +44,6 @@ function Player(props) {
   return (
     <>
       <div className="music-player">
-        <h1>Mathematical Maestros</h1>
         <audio
           src={songId && "http://localhost:5000/play/" + songId}
           ref={audioElement}
