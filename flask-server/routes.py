@@ -4,7 +4,7 @@ import uuid
 from flask import jsonify, request, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app import basedir, os
+from app import basedir, os, app, limiter
 from models import *
 
 from midi2audio import FluidSynth
@@ -43,6 +43,7 @@ def play_Song(id):
 
 # Create a Song
 @app.route('/song', methods=['POST'])
+@limiter.limit("100/day;10/hour;2/minute")
 def add_Song():
   steps = request.json['steps']
   os.system("melody_rnn_generate \

@@ -1,13 +1,6 @@
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
-
-from app import app
-
-# Init db
-db = SQLAlchemy(app)
-
-# Init ma
-ma = Marshmallow(app)
+from app import db, ma
 
 # Song Class/Model
 class Song(db.Model):
