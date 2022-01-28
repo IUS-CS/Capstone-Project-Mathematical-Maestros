@@ -10,7 +10,18 @@ const SignUp = () => {
         height: '100vh',
       }}
     >
-      <h1>This is the Sign Up page</h1>
+      <body>
+        <h1>Sign Up</h1><br></br>
+        <h2>Email:</h2>
+        <input type="textbox" name="Email"></input><br></br>
+        <h2>Username:</h2>
+        <input type="textbox" name="username"></input><br></br>
+        <h2>Password:</h2>
+        <input type="textbox" name="passwordBox"></input><br></br> 
+        <br></br>
+        <button type="button" onClick="enter()">Enter</button><br></br>
+
+      </body>
     </div>
   );
 };
