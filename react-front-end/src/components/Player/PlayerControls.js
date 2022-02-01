@@ -1,4 +1,4 @@
-import React from "react";
+import { React } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -8,20 +8,27 @@ import {
   faMusic,
 } from "@fortawesome/free-solid-svg-icons";
 
-const handleSubmit = e => {
-  e.preventDefault();
+const PlayerControls = (props) => {
 
-  const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ steps: 128 })
+  const handleSubmit = e => {
+    e.preventDefault();
+
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ steps: 128 })
+    };
+   
+    try {
+      fetch("http://localhost:5000/song", requestOptions)
+      .then(response => response.json())
+      .then(res => console.log(res));  
+    }
+    catch(err) {
+      console.log(err)
+    }
   };
-  fetch("http://localhost:5000/song", requestOptions)
-  .then(response => response.json())
-  .then(res => console.log(res));  
-};
-
-function PlayerControls(props) {
+  
   return (
     <div className="music-player--controls">
       <button className="skip-btn" onClick={() => props.SkipSong(false)}>

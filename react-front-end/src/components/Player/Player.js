@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import PlayerControls from "./PlayerControls";
 
-function Player(props) {
+const Player = (props) => {
+
   const audioElement = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-
   const songId = props.songs[props.currentSongIndex] && props.songs[props.currentSongIndex].id
 
   useEffect(() => {
