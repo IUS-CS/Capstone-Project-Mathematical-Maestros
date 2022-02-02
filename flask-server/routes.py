@@ -18,12 +18,12 @@ def register():
   user_name_exists = db.session.query(User.id).filter_by(user_name=user_name).first() is not None
   email_exists = db.session.query(User.id).filter_by(email=email).first() is not None
   if user_name_exists or email_exists:
-    return jsonify({'user_added': False})
+    return jsonify({'user_added': False}), 403
   hash_password = generate_password_hash(password)
   new_user = User(user_name, hash_password, email)
   db.session.add(new_user)
   db.session.commit()
-  return jsonify({'user_added': True})
+  return jsonify({'user_added': True}), 200
 
 # Sign In
 @app.route('/sign_in', methods=['GET', 'POST'])
@@ -32,8 +32,8 @@ def sign_in():
   password_entered = request.json['password']
   user = db.session.query(User).filter(User.user_name==user_name_entered).first()
   if user is not None and check_password_hash(user.hash_password, password_entered):
-    return jsonify({'signed_in': True})
-  return jsonify({'signed_in': False})
+    return jsonify({'signed_in': True}), 200
+  return jsonify({'signed_in': False}), 403
 
 # Play a Song
 @app.route('/play/<id>', methods=['GET'])
