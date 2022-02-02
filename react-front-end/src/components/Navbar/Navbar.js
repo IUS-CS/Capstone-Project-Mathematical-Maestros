@@ -12,20 +12,18 @@ return (
 	<>
 	<Nav>
 		<NavMenu>
-		<NavLink to='/' activeStyle>
-			Home
-		</NavLink>
-		<NavLink to='/about' activeStyle>
-			About Us
-		</NavLink>
-		<NavLink to='/signUp' activeStyle>
-			Sign Up
-		</NavLink>
-		{/* Second Nav */}
-		{/* <NavBtnLink to='/sign-in'>Sign In</NavBtnLink> */}
+			<NavLink to='/' activeStyle>
+				Home
+			</NavLink>
+			<NavLink to='/about' activeStyle>
+				About Us
+			</NavLink>
+			<NavLink to='/signUp' activeStyle>
+				Sign Up
+			</NavLink>
 		</NavMenu>
 		<NavBtn>
-		<NavBtnLink to='/signIn'>Sign In</NavBtnLink>
+		  <NavBtnLink to='/signIn'>Sign In</NavBtnLink>
 		</NavBtn>
 	</Nav>
 	</>
