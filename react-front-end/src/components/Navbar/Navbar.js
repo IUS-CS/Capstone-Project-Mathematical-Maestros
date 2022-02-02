@@ -23,7 +23,7 @@ return (
 			</NavLink>
 		</NavMenu>
 		<NavBtn>
-			<NavBtnLink to='/signin'>Sign In</NavBtnLink>
+			<NavBtnLink to='/signIn'>Sign In</NavBtnLink>
 		</NavBtn>
 	</Nav>
 	</>
