@@ -5,6 +5,7 @@ import "../components/Player/Player.css";
 const Home = () => {
 
     const [songs, setSongs] = useState([]);
+  
     const [currentSongIndex, setCurrentSongIndex] = useState(0);
     const [nextSongIndex, setNextSongIndex] = useState(currentSongIndex + 1);
   
@@ -31,7 +32,7 @@ const Home = () => {
           return currentSongIndex + 1;
         }
       });
-    }, [currentSongIndex, songs.length]);
+    }, [currentSongIndex]);
 
   return (
     <div className="Home">
