@@ -1,4 +1,6 @@
 import React from 'react';
+import logo from './logo.png';
+
 import {
 Nav,
 NavLink,
@@ -13,7 +15,7 @@ return (
 	<Nav>
 		<NavMenu>
 			<NavLink to='/' activeStyle>
-				Home
+				<img src={logo} alt='logo' />
 			</NavLink>
 			<NavLink to='/about' activeStyle>
 				About Us
