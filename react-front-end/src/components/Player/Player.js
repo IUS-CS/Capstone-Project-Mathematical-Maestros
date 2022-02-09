@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import PlayerControls from "./PlayerControls";
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
 
 const Player = (props) => {
 
@@ -41,20 +46,39 @@ const Player = (props) => {
     }
   };
 
+  const styles = {
+    card: {
+      margin: 'auto',
+      marginTop: '25rem',
+      width: '35%',
+      padding: '20px',
+      textAlign: 'center', 
+      height: '10rem', 
+      backgroundColor: '#354B46',
+    },
+  }
+  
   return (
-    <>
-      <div className="music-player">
-        <audio
-          src={songId && "http://localhost:5000/play/" + songId}
-          ref={audioElement}
-        ></audio>
-        <PlayerControls
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          SkipSong={SkipSong}
-        />
-      </div>
-    </>
+    <Card style={styles.card}>
+      <Box>
+        <CardContent>
+          <Typography component="div" variant="h5" color='whitesmoke'>
+            The Maestro's Music Box
+          </Typography>
+        </CardContent>
+        <CardMedia>
+          <audio
+            src={songId && "http://localhost:5000/play/" + songId}
+            ref={audioElement}
+          ></audio>
+          <PlayerControls
+            isPlaying={isPlaying}
+            setIsPlaying={setIsPlaying}
+            SkipSong={SkipSong}
+          />
+        </CardMedia>
+      </Box>
+    </Card>
   );
 }
 
