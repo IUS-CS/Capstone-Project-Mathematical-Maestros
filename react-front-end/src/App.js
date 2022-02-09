@@ -8,6 +8,7 @@ import SignIn from "./pages/signIn"
 const App = () => {
 
   return (
+    <>
     <Router>
       <Navbar />
       <Routes>
@@ -17,6 +18,7 @@ const App = () => {
         <Route path='/signIn' element={<SignIn/>} />
       </Routes>
     </Router>
+    </>
   );
 }
 export default App;

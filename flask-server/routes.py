@@ -18,7 +18,7 @@ def register():
   user_name_exists = db.session.query(User.id).filter_by(user_name=user_name).first() is not None
   email_exists = db.session.query(User.id).filter_by(email=email).first() is not None
   if user_name_exists or email_exists:
-    return jsonify({'user_added': False}), 403
+    return jsonify({'user_added': False}), 401
   hash_password = generate_password_hash(password)
   new_user = User(user_name, hash_password, email)
   db.session.add(new_user)
@@ -32,8 +32,9 @@ def sign_in():
   password_entered = request.json['password']
   user = db.session.query(User).filter(User.user_name==user_name_entered).first()
   if user is not None and check_password_hash(user.hash_password, password_entered):
+    # assign the user a valid JWT
     return jsonify({'signed_in': True}), 200
-  return jsonify({'signed_in': False}), 403
+  return jsonify({'signed_in': False}), 401
 
 # Play a Song
 @app.route('/play/<id>', methods=['GET'])

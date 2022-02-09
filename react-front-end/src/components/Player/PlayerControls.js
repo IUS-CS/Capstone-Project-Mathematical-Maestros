@@ -1,12 +1,11 @@
 import { React } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlay,
-  faPause,
-  faForward,
-  faBackward,
-  faMusic,
-} from "@fortawesome/free-solid-svg-icons";
+import IconButton from '@mui/material/IconButton';
+import CardContent  from "@mui/material/CardContent";
+import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
 
 const PlayerControls = (props) => {
 
@@ -30,23 +29,20 @@ const PlayerControls = (props) => {
   };
   
   return (
-    <div className="music-player--controls">
-      <button className="skip-btn" onClick={() => props.SkipSong(false)}>
-        <FontAwesomeIcon icon={faBackward} />
-      </button>
-      <button
-        className="play-btn"
-        onClick={() => props.setIsPlaying(!props.isPlaying)}
-      >
-        <FontAwesomeIcon icon={props.isPlaying ? faPause : faPlay} />
-      </button>
-      <button className="skip-btn" onClick={() => props.SkipSong()}>
-        <FontAwesomeIcon icon={faForward} />
-      </button>
-      <button className="new-song-btn" onClick={handleSubmit}>
-        <FontAwesomeIcon icon={faMusic} />
-      </button>
-    </div>
+    <CardContent>
+      <IconButton onClick={() => props.SkipSong(false)}>
+        <SkipPreviousIcon color="primary"/>
+      </IconButton>
+      <IconButton onClick={() => props.setIsPlaying(!props.isPlaying)}>
+        {props.isPlaying ? <PauseCircleIcon color="primary" sx={{ height: 38, width: 38 }}/> : <PlayCircleIcon color="primary" sx={{ height: 38, width: 38 }}/>}
+      </IconButton>
+      <IconButton onClick={() => props.SkipSong()}>
+        <SkipNextIcon color="primary"/>
+      </IconButton>
+      <IconButton onClick={handleSubmit}>
+        <AudiotrackIcon color="primary"/>
+      </IconButton>
+    </CardContent>
   );
 }
 
