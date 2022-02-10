@@ -39,39 +39,54 @@ def sign_in():
 # Play a Song
 @app.route('/play/<id>', methods=['GET'])
 def play_Song(id):
-  song = Song.query.get(id)
-  return send_file(song.path, mimetype="audio/wav")
+  try:
+    song = Song.query.get(id)
+    return send_file(song.path, mimetype="audio/wav")
+  except FileNotFoundError:
+    print('404 Not Found')
+    return send_file('')
+  except:
+    print('500 Internal Server Error')
+    return ''
+
 
 # Create a Song
 @app.route('/song', methods=['POST'])
 @limiter.limit("100/day;10/hour;2/minute")
 def add_Song():
-  steps = request.json['steps']
-  os.system("melody_rnn_generate \
-    --config=basic_rnn \
-    --bundle_file="+basedir+"/magenta/basic_rnn.mag \
-    --output_dir="+basedir+"/library \
-    --num_outputs=1 \
-    --num_steps="+str(steps)+" \
-    --primer_melody=[60]")
+  try:
+    steps = request.json['steps']
+    os.system("melody_rnn_generate \
+      --config=basic_rnn \
+      --bundle_file="+basedir+"/magenta/basic_rnn.mag \
+      --output_dir="+basedir+"/library \
+      --num_outputs=1 \
+      --num_steps="+str(steps)+" \
+      --primer_melody=[60]")
  
-  folder_path = basedir+"/library"
-  file_type = '/*mid'
-  files = glob.glob(folder_path + file_type)
-  max_file = max(files, key=os.path.getctime)
-  path = max_file
+    folder_path = basedir+"/library"
+    file_type = '/*mid'
+    files = glob.glob(folder_path + file_type)
+    max_file = max(files, key=os.path.getctime)
+    path = max_file
 
-  new_path = basedir+'/library/'+uuid.uuid4().hex+'.wav'  
+    new_path = '/library/'+uuid.uuid4().hex+'.wav'
 
-  fs = FluidSynth()
-  fs.midi_to_audio(path, new_path)
+    fs = FluidSynth()
+    fs.midi_to_audio(path, basedir+new_path)
 
-  os.remove(path)
+    os.remove(path)
 
-  new_Song = Song(new_path, steps)
-  db.session.add(new_Song)
-  db.session.commit()
-  return Song_schema.jsonify(new_Song)
+    new_Song = Song(new_path, steps)
+    db.session.add(new_Song)
+    db.session.commit()
+    return Song_schema.jsonify(new_Song)
+  except ValueError:
+    print('404 Not Found')
+    return ''
+  except:
+    print('500 Internal Server Error')
+    return ''
 
 # Get All Songs
 @app.route('/song', methods=['GET'])
@@ -100,9 +115,16 @@ def update_Song(id):
 # Delete Song
 @app.route('/song/<id>', methods=['DELETE'])
 def delete_Song(id):
-  song = Song.query.get(id)
-  if os.path.exists(song.path):
-    os.remove(song.path)
-  db.session.delete(song)
-  db.session.commit()
-  return Song_schema.jsonify(song)
+  try:
+    song = Song.query.get(id)
+    if os.path.exists(song.path):
+      os.remove(song.path)
+    db.session.delete(song)
+    db.session.commit()
+    return Song_schema.jsonify(song)
+  except AttributeError:
+    print('404 Not Found')
+    return ''
+  except:
+    print('500 Internal Server Error')
+    return ''
