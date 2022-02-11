@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import Player from "../components/Player/Player"
-import "../components/Player/Player.css";
 
 const Home = () => {
 
