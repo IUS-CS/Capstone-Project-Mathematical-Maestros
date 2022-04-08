@@ -9,7 +9,7 @@ from models import *
 
 from midi2audio import FluidSynth
 
-# Get Current User
+# Get Current User From Session
 @app.route("/users/session", methods=['GET'])
 def get_current_user():
     user_id = session.get("user_id")
@@ -53,7 +53,7 @@ def register():
   }), 200
 
 # Sign In
-@app.route('/users', methods=['GET'])
+@app.route('/users/session', methods=['POST'])
 def sign_in():
   user_name_entered = request.json['user_name']
   password_entered = request.json['password']
@@ -74,7 +74,7 @@ def sign_in():
     "email": user.email
   }), 200
 
-# Logout
+# Delete Users Session (Logout)
 @app.route('/users/session', methods=["DELETE"])
 def logout_user():
     session.pop("user_id")
