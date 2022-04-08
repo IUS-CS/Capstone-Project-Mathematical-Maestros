@@ -26,20 +26,20 @@ class TestRoutes(unittest.TestCase):
         with app.app_context():
             with app.test_client() as client:
                 sent = {"user_name": "matt", "email": "matt@iu.edu", "password": "password"}
-                response = client.post('/register', json=sent)
+                response = client.post('/users', json=sent)
                 assert response.status_code == 200
-                response = client.post('/register', json=sent)
+                response = client.post('/users', json=sent)
                 assert response.status_code == 401
 
     def test_sign_in(self):
         with app.app_context():
             with app.test_client() as client:
                 sent = {"user_name": "jon", "email": "matt@iu.edu", "password": "password"}
-                client.post('/register', json=sent)
-                response = client.post('/sign_in', json=sent)
+                client.post('/users', json=sent)
+                response = client.post('/users/session', json=sent)
                 assert response.status_code == 200
                 sent = {"user_name": "matt", "email": "matt@iu.edu", "password": "password"}
-                response = client.post('/sign_in', json=sent)
+                response = client.post('/users/session', json=sent)
                 assert response.status_code == 401
 
     def test_play(self):

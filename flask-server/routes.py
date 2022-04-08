@@ -1,7 +1,7 @@
 import glob
 import uuid
 
-from flask import jsonify, request, send_file
+from flask import jsonify, request, send_file, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import basedir, os, app, limiter
@@ -9,32 +9,76 @@ from models import *
 
 from midi2audio import FluidSynth
 
+# Get Current User From Session
+@app.route("/users/session", methods=['GET'])
+def get_current_user():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    user = User.query.filter_by(id=user_id).first()
+    return jsonify({
+        "id": user.id,
+        "user_name": user.user_name,
+        "email": user.email
+    }), 200
+
 # Register User
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/users', methods=['POST'])
 def register():
   user_name = request.json['user_name']
   email = request.json['email']
   password = request.json['password']
+
   user_name_exists = db.session.query(User.id).filter_by(user_name=user_name).first() is not None
   email_exists = db.session.query(User.id).filter_by(email=email).first() is not None
+
   if user_name_exists or email_exists:
-    return jsonify({'user_added': False}), 401
+    return jsonify({"error": "User already exists"}), 401
+  if email_exists:
+    return jsonify({"error": "Email already exists"}), 401
+
   hash_password = generate_password_hash(password)
   new_user = User(user_name, hash_password, email)
   db.session.add(new_user)
   db.session.commit()
-  return jsonify({'user_added': True}), 200
+
+  session["user_id"] = new_user.id
+
+  return jsonify({
+    "id": new_user.id,
+    "user_name": new_user.user_name,
+    "email": new_user.email
+  }), 200
 
 # Sign In
-@app.route('/sign_in', methods=['GET', 'POST'])
+@app.route('/users/session', methods=['POST'])
 def sign_in():
   user_name_entered = request.json['user_name']
   password_entered = request.json['password']
+
   user = db.session.query(User).filter(User.user_name==user_name_entered).first()
-  if user is not None and check_password_hash(user.hash_password, password_entered):
-    # assign the user a valid JWT
-    return jsonify({'signed_in': True}), 200
-  return jsonify({'signed_in': False}), 401
+
+  if user is None:
+    return jsonify({"error": "Unauthorized"}), 401
+  
+  if not check_password_hash(user.hash_password, password_entered):
+    return jsonify({"error": "Unauthorized"}), 401
+  
+  session["user_id"] = user.id
+
+  return jsonify({
+    "id": user.id,
+    "user_name": user.user_name,
+    "email": user.email
+  }), 200
+
+# Delete Users Session (Logout)
+@app.route('/users/session', methods=["DELETE"])
+def logout_user():
+    session.pop("user_id")
+    return "200", 200
 
 # Play a Song
 @app.route('/play/<id>', methods=['GET'])
