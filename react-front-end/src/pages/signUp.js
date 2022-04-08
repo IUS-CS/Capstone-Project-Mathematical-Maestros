@@ -55,10 +55,11 @@ const SignUp = () => {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userinfo)
+        body: JSON.stringify(userinfo),
+        credentials: "include"
       };
 
-      fetch("/register", requestOptions)
+      fetch("/users", requestOptions)
       .then(response => {
         if (response.status === 200)
           setRedirect(true)
