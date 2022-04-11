@@ -53,10 +53,11 @@ const SignIn = () => {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userinfo)
+        body: JSON.stringify(userinfo),
+        credentials: "include"
       };
 
-      fetch("/sign_in", requestOptions)
+      fetch("/users/session", requestOptions)
       .then(response => {
         if (response.status === 200)
           setRedirect(true)
