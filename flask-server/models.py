@@ -1,23 +1,22 @@
-from flask_marshmallow import Marshmallow
-from flask_sqlalchemy import SQLAlchemy
 from app import db, ma
 
 # Song Class/Model
 class Song(db.Model):
   __tablename__ = 'song'
   id = db.Column(db.Integer, primary_key=True)
-  #path = db.Column(db.String(300), unique=True)
-  path = db.Column(db.String(300))
+  path = db.Column(db.String(300), unique=True)
   steps = db.Column(db.Integer)
+  rating = db.Column(db.Float)
 
-  def __init__(self, path, steps):
+  def __init__(self, path, steps, rating):
     self.path = path
     self.steps = steps
+    self.rating = rating
 
 # Song Schema
-class SongSchema(ma.SQLAlchemySchema):
+class SongSchema(ma.SQLAlchemyAutoSchema):
   class Meta:
-    fields = ('id', 'path', 'steps')
+    fields = ('id', 'path', 'steps', 'rating')
 
 # User Class/Model
 class User(db.Model):
@@ -33,27 +32,30 @@ class User(db.Model):
     self.email = email
 
 # User Schema
-class UserSchema(ma.SQLAlchemySchema):
+class UserSchema(ma.SQLAlchemyAutoSchema):
   class Meta:
     fields = ('id', 'user_name', 'hash_password', 'email')
 
-# UserSong Class/Model
-class UserSong(db.Model):
-  __tablename__ = 'usersong'
+# SongRating Class/Model
+class SongRating(db.Model):
+  __tablename__ = 'songrating'
   id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-  song_id = db.Column(db.Integer, db.ForeignKey("song.id"))
-  rating = db.Column(db.Integer)
+  song_id = db.Column(db.Integer, db.ForeignKey("song.id"), nullable=False)
+  user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+  stars =  db.Column(db.Integer)
+  __table_args__ = (
+    db.UniqueConstraint(song_id, user_id),
+  )
 
-  def __init__(self, user_id, song_id, rating):
-    self.user_id = user_id
+  def __init__(self, song_id, user_id, stars):
     self.song_id = song_id
-    self.rating = rating
+    self.user_id = user_id
+    self.stars = stars
 
-# UserSong Schema 
-class UserSongSchema(ma.SQLAlchemySchema):
+# SongRating Schema 
+class SongRatingSchema(ma.SQLAlchemyAutoSchema):
   class Meta:
-    fields = ('id', 'user_id', 'song_id', 'rating')
+    fields = ('id', 'song_id', 'user_id', 'stars')
 
 # Initialize Song Schema 
 Song_schema = SongSchema()
@@ -63,6 +65,6 @@ Songs_schema = SongSchema(many=True)
 User_schema = UserSchema()
 Users_schema = UserSchema(many=True)
 
-# Initialize UserSong Schema 
-UserSong_schema = UserSongSchema()
-UserSongs_schema = UserSongSchema(many=True)
+# Initialize SongRating Schema 
+SongRating_schema = SongRatingSchema()
+SongRatings_schema = SongRatingSchema(many=True)

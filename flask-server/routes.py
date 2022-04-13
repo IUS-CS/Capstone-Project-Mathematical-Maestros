@@ -1,13 +1,12 @@
 import glob
 import uuid
-
 from flask import jsonify, request, send_file, session
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from sqlalchemy import and_
+from sqlalchemy.sql import func
+from midi2audio import FluidSynth
 from app import basedir, os, app, limiter
 from models import *
-
-from midi2audio import FluidSynth
 
 # Get Current User From Session
 @app.route("/users/session", methods=['GET'])
@@ -34,7 +33,7 @@ def register():
   user_name_exists = db.session.query(User.id).filter_by(user_name=user_name).first() is not None
   email_exists = db.session.query(User.id).filter_by(email=email).first() is not None
 
-  if user_name_exists or email_exists:
+  if user_name_exists:
     return jsonify({"error": "User already exists"}), 401
   if email_exists:
     return jsonify({"error": "Email already exists"}), 401
@@ -111,8 +110,8 @@ def add_Song():
   fs.midi_to_audio(path, new_path)
 
   os.remove(path)
-
-  new_Song = Song(new_path, steps)
+  rating = 0
+  new_Song = Song(new_path, steps, rating)
   db.session.add(new_Song)
   db.session.commit()
   return Song_schema.jsonify(new_Song)
@@ -136,8 +135,10 @@ def update_Song(id):
   song = Song.query.get(id)
   path = request.json['path']
   steps = request.json['steps']
-  Song.path = path
-  Song.steps = steps
+  rating = request.json['rating']
+  song.path = path
+  song.steps = steps
+  song.rating = rating
   db.session.commit()
   return Song_schema.jsonify(song)
 
@@ -150,3 +151,45 @@ def delete_Song(id):
   db.session.delete(song)
   db.session.commit()
   return Song_schema.jsonify(song)
+
+# Rate Song 
+@app.route('/song/rating', methods=['POST'])
+def rate_song():
+  song_id = request.json['song_id']
+  user_id = request.json['user_id']
+  stars = request.json['stars']
+
+  record_exists = db.session.query(SongRating).\
+    filter(and_(SongRating.user_id==user_id, SongRating.song_id==song_id)).\
+    first() is not None
+
+  if record_exists:
+    # Update Record
+    db.session.query(SongRating).\
+      filter(and_(SongRating.user_id==user_id, SongRating.song_id==song_id)).\
+      update({'stars': stars})
+  else:
+    # Create new Record
+    song_rating = SongRating(song_id, user_id, stars)
+    db.session.add(song_rating)
+
+  # Calculate new rating
+  new_rating = Song.query.with_entities(func.avg(SongRating.stars)).\
+    filter(SongRating.song_id==song_id)
+  # Update Song rating
+  db.session.query(Song).filter(Song.id==song_id).update({'rating': new_rating})
+  db.session.commit()
+  return jsonify({
+    "song_id": song_id,
+    "user_id": user_id,
+    "stars": stars
+  }), 200
+
+# Get All Ratings
+@app.route('/song/rating', methods=['GET'])
+def get_all_ratings():
+  all_ratings = SongRating.query.all()
+  result = SongRatings_schema.dump(all_ratings)
+  return jsonify(result)
+
+  
