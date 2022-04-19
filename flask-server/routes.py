@@ -1,12 +1,12 @@
-import glob
-import uuid
+import os
 from flask import jsonify, request, send_file, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import and_
 from sqlalchemy.sql import func
 from midi2audio import FluidSynth
-from app import basedir, os, app, limiter
+from app import app, limiter
 from models import *
+from generate import generate
 
 # Get Current User From Session
 @app.route("/users/session", methods=['GET'])
@@ -43,8 +43,6 @@ def register():
   db.session.add(new_user)
   db.session.commit()
 
-  session["user_id"] = new_user.id
-
   return jsonify({
     "id": new_user.id,
     "user_name": new_user.user_name,
@@ -76,42 +74,29 @@ def sign_in():
 # Delete Users Session (Logout)
 @app.route('/users/session', methods=["DELETE"])
 def logout_user():
-    session.pop("user_id")
-    return "200", 200
+  session.pop("user_id")
+  return "200", 200
 
 # Play a Song
 @app.route('/play/<id>', methods=['GET'])
 def play_Song(id):
   song = Song.query.get(id)
-  return send_file(song.path, mimetype="audio/wav")
+  return send_file(song.wav_path, mimetype="audio/wav")
 
 # Create a Song
 @app.route('/song', methods=['POST'])
 @limiter.limit("100/day;10/hour;2/minute")
 def add_Song():
-  steps = request.json['steps']
-  os.system("melody_rnn_generate \
-    --config=basic_rnn \
-    --bundle_file="+basedir+"/magenta/basic_rnn.mag \
-    --output_dir="+basedir+"/library \
-    --num_outputs=1 \
-    --num_steps="+str(steps)+" \
-    --primer_melody=[60]")
- 
-  folder_path = basedir+"/library"
-  file_type = '/*mid'
-  files = glob.glob(folder_path + file_type)
-  max_file = max(files, key=os.path.getctime)
-  path = max_file
+  genre = request.json['genre']
+  rating = request.json['rating']
+  midi_path = generate(genre)
+  
+  base, _ = os.path.splitext(midi_path)
+  wav_path = f'{base}.wav'  
 
-  new_path = basedir+'/library/'+uuid.uuid4().hex+'.wav'  
-
-  fs = FluidSynth()
-  fs.midi_to_audio(path, new_path)
-
-  os.remove(path)
-  rating = 0
-  new_Song = Song(new_path, steps, rating)
+  FluidSynth(f'datasets/{genre}/sound_font.sf2').midi_to_audio(midi_path, wav_path)
+  
+  new_Song = Song(midi_path, wav_path, genre, rating)
   db.session.add(new_Song)
   db.session.commit()
   return Song_schema.jsonify(new_Song)
@@ -133,11 +118,13 @@ def get_Song(id):
 @app.route('/song/<id>', methods=['PUT'])
 def update_Song(id):
   song = Song.query.get(id)
-  path = request.json['path']
-  steps = request.json['steps']
+  midi_path = request.json['midi_path']
+  wav_path = request.json['wav_path']
+  genre = request.json['genre']
   rating = request.json['rating']
-  song.path = path
-  song.steps = steps
+  song.midi_path = midi_path
+  song.wav_path = wav_path
+  song.genre = genre
   song.rating = rating
   db.session.commit()
   return Song_schema.jsonify(song)
@@ -146,8 +133,9 @@ def update_Song(id):
 @app.route('/song/<id>', methods=['DELETE'])
 def delete_Song(id):
   song = Song.query.get(id)
-  if os.path.exists(song.path):
-    os.remove(song.path)
+  if os.path.exists(song.midi_path) and os.path.exists(song.wav_path):
+    os.remove(song.midi_path)
+    os.remove(song.wav_path)
   db.session.delete(song)
   db.session.commit()
   return Song_schema.jsonify(song)
@@ -192,4 +180,9 @@ def get_all_ratings():
   result = SongRatings_schema.dump(all_ratings)
   return jsonify(result)
 
-  
+# Get Rating for Current Song 
+@app.route('/song/rating/<id>', methods=['GET'])
+def get_rating(id):
+  song = Song.query.get(id)
+  rating = song.rating
+  return jsonify(rating)
