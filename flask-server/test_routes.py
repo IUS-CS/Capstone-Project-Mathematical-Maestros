@@ -45,7 +45,10 @@ class TestRoutes(unittest.TestCase):
     def test_play(self):
         with app.app_context():
             with app.test_client() as client:
-                new_song = Song(os.path.join(basedir, "test_library/0b02d34c3dc14a099e26b360f733f3a8.wav"), steps="128")
+                new_song = Song(midi_path=os.path.join(basedir, "test_library/1650378574.972328.mid"),\
+                    wav_path=os.path.join(basedir, "test_library/1650378574.972328.wav"),\
+                    genre="Rock",
+                    rating=0.0)
                 db.session.add(new_song)
                 db.session.commit()
                 response = client.get('/play/1')
@@ -54,7 +57,10 @@ class TestRoutes(unittest.TestCase):
     def test_single_song(self):
         with app.app_context():
             with app.test_client() as client:
-                new_song = Song(os.path.join(basedir, "test_library/0b02d34c3dc14a099e26b360f733f3a8.wav"), steps="128")
+                new_song = Song(midi_path=os.path.join(basedir, "test_library/1650378574.972328.mid"),\
+                    wav_path=os.path.join(basedir, "test_library/1650378574.972328.wav"),\
+                    genre="Rock",
+                    rating=0.0)                
                 db.session.add(new_song)
                 db.session.commit()
                 response = client.get('/song/1')
@@ -63,12 +69,16 @@ class TestRoutes(unittest.TestCase):
     def test_all_song(self):
         with app.app_context():
             with app.test_client() as client:
-                new_song2 = Song(os.path.join(basedir, "test_library/0b02d34c3dc14a099e26b360f733f3a8.wav"),
-                                 steps="128")
-                new_song3 = Song(os.path.join(basedir, "test_library/0b6241f5a82e406d8b9e4a464ca3b312.wav"),
-                                 steps="128")
+                new_song = Song(midi_path=os.path.join(basedir, "test_library/1650378574.972328.mid"),\
+                    wav_path=os.path.join(basedir, "test_library/1650378574.972328.wav"),\
+                    genre="Rock",
+                    rating=0.0) 
+                new_song2 = Song(midi_path=os.path.join(basedir, "test_library/1650379410.3046038.mid"),\
+                    wav_path=os.path.join(basedir, "test_library/1650379410.3046038.wav"),\
+                    genre="Rock",
+                    rating=0.0) 
+                db.session.add(new_song)
                 db.session.add(new_song2)
-                db.session.add(new_song3)
                 db.session.commit()
                 response = client.get('/song')
                 assert response.status_code == 200
@@ -76,14 +86,21 @@ class TestRoutes(unittest.TestCase):
     def test_delete_song(self):
         with app.app_context():
             with app.test_client() as client:
-                new_song = Song(os.path.join(basedir, "test_library/0b02d34c3dc14a099e26b360f733f3a8.wav"), steps="128")
+                new_song = Song(midi_path=os.path.join(basedir, "test_library/1650378574.972328.mid"),\
+                    wav_path=os.path.join(basedir, "test_library/1650378574.972328.wav"),\
+                    genre="Rock",
+                    rating=0.0) 
                 db.session.add(new_song)
                 db.session.commit()
-                source = os.path.join(basedir, "test_library/0b02d34c3dc14a099e26b360f733f3a8.wav")
-                destination = os.path.join(basedir, "test_library/0b02d34c3dc14a099e26b360f733f3a8(1).wav")
-                shutil.copy(source, destination)
+                wav_source = os.path.join(basedir, "test_library/1650378574.972328.wav")
+                wav_destination = os.path.join(basedir, "test_library/1650378574.972328(1).wav")
+                shutil.copy(wav_source, wav_destination)
+                midi_source = os.path.join(basedir, "test_library/1650378574.972328.mid")
+                midi_destination = os.path.join(basedir, "test_library/1650378574.972328(1).mid")
+                shutil.copy(midi_source, midi_destination)
                 response = client.delete('/song/1')
-                os.rename(destination, source)
+                os.rename(wav_destination, wav_source)
+                os.rename(midi_destination, midi_source)
                 assert response.status_code == 200
 
 

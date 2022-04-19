@@ -4,19 +4,21 @@ from app import db, ma
 class Song(db.Model):
   __tablename__ = 'song'
   id = db.Column(db.Integer, primary_key=True)
-  path = db.Column(db.String(300), unique=True)
-  steps = db.Column(db.Integer)
+  midi_path = db.Column(db.String(300), unique=True)
+  wav_path = db.Column(db.String(300), unique=True)
+  genre = db.Column(db.String(30))
   rating = db.Column(db.Float)
 
-  def __init__(self, path, steps, rating):
-    self.path = path
-    self.steps = steps
+  def __init__(self, midi_path, wav_path, genre, rating):
+    self.midi_path = midi_path
+    self.wav_path = wav_path
+    self.genre = genre
     self.rating = rating
 
 # Song Schema
 class SongSchema(ma.SQLAlchemyAutoSchema):
   class Meta:
-    fields = ('id', 'path', 'steps', 'rating')
+    fields = ('id', 'midi_path', 'wav_path', 'genre', 'rating')
 
 # User Class/Model
 class User(db.Model):
