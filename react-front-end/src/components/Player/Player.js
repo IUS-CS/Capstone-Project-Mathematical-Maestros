@@ -5,12 +5,13 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
+import PlayerForm from "./PlayerForm";
 
 const Player = (props) => {
 
   const audioElement = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  var songId = props.songs[props.currentSongIndex] && props.songs[props.currentSongIndex].id
+  const songId = props.songs[props.currentSongIndex] && props.songs[props.currentSongIndex].id
 
   useEffect(() => {
     if (isPlaying) {
@@ -53,7 +54,7 @@ const Player = (props) => {
       width: '35%',
       padding: '20px',
       textAlign: 'center', 
-      height: '10rem', 
+      height: '30rem', 
       backgroundColor: '#354B46',
     },
   }
@@ -63,12 +64,12 @@ const Player = (props) => {
       <Box>
         <CardContent>
           <Typography component="div" variant="h5" color='whitesmoke'>
-            The Maestro's Music Box
+            The Maestro's Music Box:
           </Typography>
         </CardContent>
         <CardMedia>
           <audio
-            src={songId && "http://localhost:5000/play/" + songId}
+            src={songId && `http://localhost:5000/play/${songId}`}
             ref={audioElement}
           ></audio>
           <PlayerControls
@@ -77,6 +78,9 @@ const Player = (props) => {
             SkipSong={SkipSong}
           />
         </CardMedia>
+        <CardContent>
+          <PlayerForm/>
+        </CardContent>
       </Box>
     </Card>
   );
