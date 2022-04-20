@@ -6,6 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import PlayerForm from "./PlayerForm";
+import PlayerRating from "./PlayerRating";
 
 const Player = (props) => {
 
@@ -54,8 +55,8 @@ const Player = (props) => {
       width: '35%',
       padding: '20px',
       textAlign: 'center', 
-      height: '30rem', 
       backgroundColor: '#354B46',
+      minWidth: "345px",
     },
   }
   
@@ -79,6 +80,9 @@ const Player = (props) => {
           />
         </CardMedia>
         <CardContent>
+          <PlayerRating
+            songId={songId}
+          />
           <PlayerForm/>
         </CardContent>
       </Box>
