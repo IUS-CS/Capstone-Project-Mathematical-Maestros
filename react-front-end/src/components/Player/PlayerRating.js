@@ -12,7 +12,7 @@ const PlayerRating = (props) => {
   useEffect(() => {
     (async () => {
       try {
-        const resp = await httpClient.get("/users/session");
+        const resp = await httpClient.get("/api/users/session");
         setCurrentUser(resp.data);
       } catch(error) {
         console.log("Not authenticated");
@@ -21,14 +21,16 @@ const PlayerRating = (props) => {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const resp = await httpClient.get(`/song/rating/${props.songId}`);
-        setAverageRating(resp.data);
-      } catch(error) {
-        console.log("Not authenticated");
-      }
-    })();
+    if(props.songId){
+      (async () => {
+        try {
+          const resp = await httpClient.get(`/api/song/rating/${props.songId}`);
+          setAverageRating(resp.data);
+        } catch(error) {
+          console.log("Not authenticated");
+        }
+      })();
+    }
   }, [props.songId, ratingValue]);
 
   const handleClick = (newValue) => {
@@ -39,9 +41,9 @@ const PlayerRating = (props) => {
       body: JSON.stringify({ song_id: props.songId, user_id: currentUser.id, stars: newValue })
     };
 
-    if(newValue !== 0) {
+    if(newValue !== 0 && newValue !== null) {
       try {
-        fetch("/song/rating", requestOptions)
+        fetch("/api/song/rating", requestOptions)
         .then(response => response.json())
         .then(res => console.log(res))
         // Set Rating Value after Fetch, see above useEffect dependency.
@@ -54,7 +56,7 @@ const PlayerRating = (props) => {
   }
 
   return (
-    <div style={{ display: 'block', padding: 30 }}>
+    <div style={{ display: 'block' }}>
       <Box component="fieldset" mb={3} borderColor="transparent">
         <Rating
           name="Rating Label"
@@ -63,6 +65,8 @@ const PlayerRating = (props) => {
             handleClick(newValue);
           }}
           precision={0.5}
+          readOnly={currentUser ? false : true}
+          size="large"
         />
       </Box>
     </div>
