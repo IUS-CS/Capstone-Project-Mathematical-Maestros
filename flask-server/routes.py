@@ -9,7 +9,7 @@ from models import *
 from generate import generate
 
 # Get Current User From Session
-@app.route("/users/session", methods=['GET'])
+@app.route("/api/users/session", methods=['GET'])
 def get_current_user():
     user_id = session.get("user_id")
 
@@ -24,7 +24,7 @@ def get_current_user():
     }), 200
 
 # Register User
-@app.route('/users', methods=['POST'])
+@app.route('/api/users', methods=['POST'])
 def register():
   user_name = request.json['user_name']
   email = request.json['email']
@@ -50,7 +50,7 @@ def register():
   }), 200
 
 # Sign In
-@app.route('/users/session', methods=['POST'])
+@app.route('/api/users/session', methods=['POST'])
 def sign_in():
   user_name_entered = request.json['user_name']
   password_entered = request.json['password']
@@ -72,19 +72,19 @@ def sign_in():
   }), 200
 
 # Delete Users Session (Logout)
-@app.route('/users/session', methods=["DELETE"])
+@app.route('/api/users/session', methods=["DELETE"])
 def logout_user():
   session.pop("user_id")
   return "200", 200
 
 # Play a Song
-@app.route('/play/<id>', methods=['GET'])
+@app.route('/api/play/<id>', methods=['GET'])
 def play_Song(id):
   song = Song.query.get(id)
   return send_file(song.wav_path, mimetype="audio/wav")
 
 # Create a Song
-@app.route('/song', methods=['POST'])
+@app.route('/api/song', methods=['POST'])
 @limiter.limit("100/day;10/hour;2/minute")
 def add_Song():
   genre = request.json['genre']
@@ -102,20 +102,20 @@ def add_Song():
   return Song_schema.jsonify(new_Song)
 
 # Get All Songs
-@app.route('/song', methods=['GET'])
+@app.route('/api/song', methods=['GET'])
 def get_Songs():
   all_Songs = Song.query.all()
   result = Songs_schema.dump(all_Songs)
   return jsonify(result)
 
 # Get Single Songs
-@app.route('/song/<id>', methods=['GET'])
+@app.route('/api/song/<id>', methods=['GET'])
 def get_Song(id):
   song = Song.query.get(id)
   return Song_schema.jsonify(song)
 
 # Update a Song
-@app.route('/song/<id>', methods=['PUT'])
+@app.route('/api/song/<id>', methods=['PUT'])
 def update_Song(id):
   song = Song.query.get(id)
   midi_path = request.json['midi_path']
@@ -130,7 +130,7 @@ def update_Song(id):
   return Song_schema.jsonify(song)
 
 # Delete Song
-@app.route('/song/<id>', methods=['DELETE'])
+@app.route('/api/song/<id>', methods=['DELETE'])
 def delete_Song(id):
   song = Song.query.get(id)
   if os.path.exists(song.midi_path) and os.path.exists(song.wav_path):
@@ -141,7 +141,7 @@ def delete_Song(id):
   return Song_schema.jsonify(song)
 
 # Rate Song 
-@app.route('/song/rating', methods=['POST'])
+@app.route('/api/song/rating', methods=['POST'])
 def rate_song():
   song_id = request.json['song_id']
   user_id = request.json['user_id']
@@ -174,14 +174,14 @@ def rate_song():
   }), 200
 
 # Get All Ratings
-@app.route('/song/rating', methods=['GET'])
+@app.route('/api/song/rating', methods=['GET'])
 def get_all_ratings():
   all_ratings = SongRating.query.all()
   result = SongRatings_schema.dump(all_ratings)
   return jsonify(result)
 
 # Get Rating for Current Song 
-@app.route('/song/rating/<id>', methods=['GET'])
+@app.route('/api/song/rating/<id>', methods=['GET'])
 def get_rating(id):
   song = Song.query.get(id)
   rating = song.rating

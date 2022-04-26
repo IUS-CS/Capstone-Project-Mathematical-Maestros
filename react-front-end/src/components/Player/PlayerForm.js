@@ -32,7 +32,7 @@ const PlayerForm = () => {
     
     setLoading(true);
     try {
-        fetch("http://localhost:5000/song", requestOptions)
+        fetch("/api/song", requestOptions)
         .then(response => response.json())
         .then(() => setLoading(false))
         .then(res => console.log(res));
@@ -51,9 +51,11 @@ const PlayerForm = () => {
           name="form-genre"
           value={genre}
           onChange={handleRadioChange}
+          row
         >
           <FormControlLabel value="Rock" control={<Radio />} label="Rock" />
           <FormControlLabel value="Blues" control={<Radio />} label="Blues" />
+          <FormControlLabel value="Pop" control={<Radio />} label="Pop" />
         </RadioGroup>
         <LoadingButton sx={{ mt: 1, mr: 1 }} type="submit" variant="outlined" loading={loading}>
           Generate!
